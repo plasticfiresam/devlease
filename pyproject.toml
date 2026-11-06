@@ -1,6 +1,6 @@
 [project]
 name = "devlease"
-version = "0.1.0"
+version = "0.0.1"
 description = "A machine-wide lease registry for iOS simulators and Android emulators shared by coding agents"
 readme = "README.en.md"
 license = { text = "MIT" }

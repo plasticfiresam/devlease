@@ -1,19 +1,51 @@
 name: ci
+
 on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
-    strategy:
-      matrix:
-        os: [macos-latest, ubuntu-latest]
+    name: test (${{ matrix.os }}, python ${{ matrix.python }})
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python: ["3.11", "3.13"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python }}
       - run: python -m unittest discover -s tests -v
         env:
           PYTHONPATH: src
+
+  package:
+    name: package
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Build and check that the installed command runs
+        run: |
+          python -m pip install build
+          python -m build
+          python -m venv /tmp/venv
+          /tmp/venv/bin/pip install dist/*.whl
+          /tmp/venv/bin/devlease --help
+          /tmp/venv/bin/python -c "import devlease; print(devlease.__version__)"

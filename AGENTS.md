@@ -1,17 +1,21 @@
 # AGENTS.md
 
-`devlease` is a Python package with no runtime dependencies (standard library only, Python 3.11+).
+`devlease` — пакет на Python без зависимостей времени выполнения (только стандартная библиотека,
+Python 3.11+).
 
-- `db.py` the SQLite schema and the machine-wide limits; `pool.py` the rules (matching, FIFO,
-  limits, expiry, creation requests); `backends.py` the real `simctl`/`avdmanager`/`emulator`
-  calls and a `Fake` backend; `hook.py` the PreToolUse check; `server.py` and `page.py` the web
-  service; `system.py` memory and the cache whitelist; `cli.py` the commands.
-- Tests run the real CLI, hook and web service against a fake device list
-  (`DEVLEASE_FAKE_FILE`) in a temp directory: `PYTHONPATH=src python3 -m unittest discover -s tests`.
-  A change to behaviour starts with a test there.
-- Every write goes through `db.tx` (`BEGIN IMMEDIATE`), so two agents never interleave.
-- The web page must never accept a path or a command from the browser: caches are a fixed
-  whitelist in `system.CACHES`, and POSTs need the `X-Devlease` header and a local `Host`.
-- The skill agents read is `skills/devlease/SKILL.md`; update it with any change to commands,
-  exit codes or limits.
-- Commit messages follow Conventional Commits. Text in this repository is English.
+- `db.py` — схема SQLite и общие для машины лимиты; `pool.py` — правила (подбор устройства, очередь,
+  лимиты, истечение срока, запросы на создание); `backends.py` — реальные вызовы
+  `simctl`/`avdmanager`/`emulator` и бэкенд `Fake`; `hook.py` — проверка `PreToolUse`; `server.py` и
+  `page.py` — веб-сервис; `system.py` — память и список кэшей; `cli.py` — команды.
+- Тесты запускают настоящие CLI, хук и веб-сервис на фиктивном списке устройств
+  (`DEVLEASE_FAKE_FILE`) во временном каталоге:
+  `PYTHONPATH=src python3 -m unittest discover -s tests`. Изменение поведения начинается с теста.
+- Каждая запись идёт через `db.tx` (`BEGIN IMMEDIATE`), поэтому два агента не перемешиваются.
+- Веб-страница не должна принимать от браузера путь или команду: кэши — фиксированный список в
+  `system.CACHES`, а POST требует заголовок `X-Devlease` и локальный `Host`.
+- Навык, который читают агенты, — `skills/devlease/SKILL.md`; обновляй его при любом изменении
+  команд, кодов выхода и лимитов.
+- Хук `PreToolUse` читает текст команды целиком, поэтому правки файлов с упоминанием запрещённых
+  команд (README, тесты) делай инструментом записи файлов, а не heredoc в shell.
+- Документация (README, AGENTS.md) — на русском, английская версия README — `README.en.md`;
+  навык, код и сообщения коммитов — на английском. Сообщения коммитов следуют Conventional Commits.
